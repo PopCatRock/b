@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deploy Token</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Deploy Your Custom Token</h1>
+    <form id="deployForm">
+        <label for="name">Token Name:</label>
+        <input type="text" id="name" name="name"><br>
+
+        <label for="symbol">Token Symbol:</label>
+        <input type="text" id="symbol" name="symbol"><br>
+
+        <label for="totalSupply">Total Supply:</label>
+        <input type="number" id="totalSupply" name="totalSupply"><br>
+
+        <label for="maxTransactionAmount">Max Transaction Amount (% of total supply):</label>
+        <input type="number" id="maxTransactionAmount" name="maxTransactionAmount"><br>
+
+        <label for="maxHoldingAmount">Max Holding Amount (% of total supply):</label>
+        <input type="number" id="maxHoldingAmount" name="maxHoldingAmount"><br>
+
+        <label for="marketingFee">Marketing Fee (%):</label>
+        <input type="number" id="marketingFee" name="marketingFee"><br>
+
+        <label for="liquidityFee">Auto Liquidity Fee (%):</label>
+        <input type="number" id="liquidityFee" name="liquidityFee"><br>
+
+        <label for="marketingWallet">Marketing Wallet Address:</label>
+        <input type="text" id="marketingWallet" name="marketingWallet"><br>
+
+        <button type="button" onclick="deployToken()">Deploy Token</button>
+    </form>
+
+    <script>
+        async function deployToken() {
+            if (typeof window.ethereum !== 'undefined') {
+                await ethereum.request({ method: 'eth_requestAccounts' });
+                const web3 = new Web3('https://ropsten.infura.io/v3/YOUR_INFURA_PROJECT_ID'); // Connect to Ropsten testnet
+
+                const name = document.getElementById('name').value;
+                const symbol = document.getElementById('symbol').value;
+                const totalSupply = document.getElementById('totalSupply').value;
+                const maxTransactionAmount = document.getElementById('maxTransactionAmount').value;
+                const maxHoldingAmount = document.getElementById('maxHoldingAmount').value;
+                const marketingFee = document.getElementById('marketingFee').value;
+                const liquidityFee = document.getElementById('liquidityFee').value;
+                const marketingWallet = document.getElementById('marketingWallet').value;
+
+                const response = await fetch('PopToken.sol'); // Fetch the Solidity file content
+                const solContent = await response.text();
+
+                // Compile the Solidity code using an external compiler (e.g., Remix IDE or Truffle)
+                // Here we assume the compiled output (ABI and bytecode) is available.
+                const abi = YOUR_CONTRACT_ABI;
+                const bytecode = YOUR_CONTRACT_BYTECODE;
+
+                const contract = new web3.eth.Contract(abi);
+                const accounts = await web3.eth.getAccounts();
+
+                contract.deploy({
+                    data: bytecode,
+                    arguments: [
+                        name,
+                        symbol,
+                        web3.utils.toWei(totalSupply, 'ether'),
+                        web3.utils.toWei(maxTransactionAmount, 'ether'),
+                        web3.utils.toWei(maxHoldingAmount, 'ether'),
+                        marketingFee,
+                        liquidityFee,
+                        marketingWallet
+                    ]
+                }).send({
+                    from: accounts[0]
+                }).on('receipt', (receipt) => {
+                    console.log('Contract deployed at address:', receipt.contractAddress);
+                });
+            } else {
+                alert('Please install MetaMask!');
+            }
+        }
+    </script>
+</body>
+</html>
