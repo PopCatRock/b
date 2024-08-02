@@ -1052,7 +1052,7 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
     ) external;
 }
 
-contract COIN_TOOL_II is ERC20, Ownable {
+contract PopToken is ERC20, Ownable {
     using SafeMath for uint256;
 
     IUniswapV2Router02 public immutable PopswapV2Router;
